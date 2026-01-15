@@ -1,13 +1,35 @@
-# Sample Hardhat Project
 
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a Hardhat Ignition module that deploys that contract.
+---
 
-Try running some of the following tasks:
+## 🔗 **CONTRACTS README (Hardhat / Flare)**
 
-```shell
-npx hardhat help
-npx hardhat test
-REPORT_GAS=true npx hardhat test
-npx hardhat node
-npx hardhat ignition deploy ./ignition/modules/Lock.js
-```
+```md
+# GistPin Smart Contracts
+
+This package contains the **Solidity smart contracts** for GistPin, deployed on the **Flare Network** and tested on **Songbird**.
+
+The contracts handle:
+- On-chain storage of gists
+- Immutable timestamps
+- Transparent posting logic
+- Future cross-chain extensions via Flare
+
+---
+
+## 🧰 Tech Stack
+
+- Solidity
+- Hardhat
+- Flare Network (EVM-compatible)
+
+---
+
+## ⚙️ Setup
+
+### Requirements
+- Node.js ≥ 18
+- npm
+
+### Install
+```bash
+npm install
