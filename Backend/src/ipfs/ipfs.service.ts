@@ -11,7 +11,7 @@ export interface PinResult {
 export class IpfsService {
   private readonly logger = new Logger(IpfsService.name);
   private readonly devMode: boolean;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   private pinata: any;
 
   constructor(private readonly config: ConfigService) {
