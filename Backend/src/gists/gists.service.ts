@@ -32,11 +32,7 @@ export class GistsService {
     });
 
     // 3. Post to Soroban contract (mock in dev)
-    const { gistId, txHash } = await this.sorobanService.postGist(
-      locationCell,
-      cid,
-      dto.author,
-    );
+    const { gistId, txHash } = await this.sorobanService.postGist(locationCell, cid, dto.author);
 
     this.logger.log(`Gist posted → cell=${locationCell} cid=${cid} gistId=${gistId}`);
 
