@@ -5,6 +5,7 @@ import { GeoModule } from './geo/geo.module';
 import { IpfsModule } from './ipfs/ipfs.module';
 import { SorobanModule } from './soroban/soroban.module';
 import { GistsModule } from './gists/gists.module';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { GistsModule } from './gists/gists.module';
     IpfsModule,
     SorobanModule,
     GistsModule,
+    HealthModule,
   ],
 })
 export class AppModule {}
