@@ -2,11 +2,15 @@ import ScatterChart from '@/components/charts/ScatterChart';
 import RadarChart from '@/components/charts/RadarChart';
 import CategoryPieChart from '@/components/charts/CategoryPieChart';
 import LocationTable from '@/components/ui/LocationTable';
+import LiveGistCounter from '@/components/LiveGistCounter';
 
 export default function Page() {
   return (
     <div>
       <h1>Analytics Dashboard</h1>
+
+      <h2>Live Gists</h2>
+      <LiveGistCounter />
 
       <h2>Scatter</h2>
       <ScatterChart />
