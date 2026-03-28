@@ -4,11 +4,21 @@ import CategoryPieChart from '@/components/charts/CategoryPieChart';
 import LocationTable from '@/components/ui/LocationTable';
 import LiveGistCounter from '@/components/LiveGistCounter';
 import UserAreaChart from '@/components/charts/UserAreaChart';
+import KPIGrid from '@/components/KPICard';
+import DailyGistsChart from '@/components/charts/DailyGistsChart';
 
 export default function Page() {
   return (
     <div className="space-y-6">
 
+      <h2>Overview</h2>
+      <KPIGrid />
+
+      <h2>Daily Gists (Last 30 Days)</h2>
+      <DailyGistsChart />
+
+      <h2>Live Gists</h2>
+      <LiveGistCounter />
       {/* KPI row — live counter spans full width on mobile, 1/3 on lg */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <div className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900 lg:col-span-1">
