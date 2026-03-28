@@ -1,5 +1,6 @@
 import ScatterChart from '@/components/charts/ScatterChart';
 import RadarChart from '@/components/charts/RadarChart';
+import CategoryPieChart from '@/components/charts/CategoryPieChart';
 import LocationTable from '@/components/ui/LocationTable';
 
 export default function Page() {
@@ -12,6 +13,9 @@ export default function Page() {
 
       <h2>Radar</h2>
       <RadarChart />
+
+      <h2>Category Distribution</h2>
+      <CategoryPieChart />
 
       <h2>Locations</h2>
       <LocationTable />
