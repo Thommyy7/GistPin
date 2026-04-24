@@ -1,5 +1,4 @@
 'use client';
-
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -13,68 +12,31 @@ import {
 import type { TooltipItem } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 import { useMemo, useState } from 'react';
+import { generateHistoricalData, generateForecast } from '@/lib/forecast';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Filler, Tooltip, Legend);
 
-interface DayPoint {
-  label: string;
-  count: number;
-}
-
-function generateHistorical(): DayPoint[] {
-  const points: DayPoint[] = [];
-  const now = Date.now();
-  for (let i = 29; i >= 0; i--) {
-    const d = new Date(now - i * 86_400_000);
-    const trend = 100 + (29 - i) * 1.5;
-    const isWeekend = d.getDay() === 0 || d.getDay() === 6;
-    const count = Math.round(Math.min(200, Math.max(50, trend + (Math.random() - 0.5) * 40 - (isWeekend ? 20 : 0))));
-    points.push({ label: d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }), count });
-  }
-  return points;
-}
-
-function linearRegression(values: number[]): { slope: number; intercept: number; r2: number } {
-  const n = values.length;
-  const xs = values.map((_, i) => i);
-  const meanX = xs.reduce((a, b) => a + b, 0) / n;
-  const meanY = values.reduce((a, b) => a + b, 0) / n;
-  const slope = xs.reduce((acc, x, i) => acc + (x - meanX) * (values[i] - meanY), 0) /
-    xs.reduce((acc, x) => acc + (x - meanX) ** 2, 0);
-  const intercept = meanY - slope * meanX;
-  const ssTot = values.reduce((acc, y) => acc + (y - meanY) ** 2, 0);
-  const ssRes = values.reduce((acc, y, i) => acc + (y - (slope * i + intercept)) ** 2, 0);
-  const r2 = ssTot === 0 ? 1 : 1 - ssRes / ssTot;
-  return { slope, intercept, r2 };
-}
-
 export default function ForecastChart() {
   const [showForecast, setShowForecast] = useState(true);
-  const historical = useMemo(() => generateHistorical(), []);
-  const counts = historical.map((p) => p.count);
-  const { slope, intercept, r2 } = useMemo(() => linearRegression(counts), [counts]);
 
-  const forecastValues = Array.from({ length: 7 }, (_, i) => {
-    const x = counts.length + i;
-    return Math.round(slope * x + intercept);
-  });
+  const historical = useMemo(() => generateHistoricalData(30), []);
+  const { forecast, upperBound, lowerBound, r2 } = useMemo(
+    () => generateForecast(historical, 7, 0.2),
+    [historical]
+  );
 
-  const now = Date.now();
-  const forecastLabels = Array.from({ length: 7 }, (_, i) => {
-    const d = new Date(now + (i + 1) * 86_400_000);
-    return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
-  });
+  const allLabels = [...historical.map((p) => p.label), ...forecast.map((p) => p.label)];
+  const histPad = [...historical.map((p) => p.value), ...Array(7).fill(null)];
+  const lastHistVal = historical[historical.length - 1].value;
 
-  const allLabels = [...historical.map((p) => p.label), ...forecastLabels];
-  const histPad = [...counts, ...Array(7).fill(null)];
   const forecastPad = showForecast
-    ? [...Array(counts.length - 1).fill(null), counts[counts.length - 1], ...forecastValues]
+    ? [...Array(historical.length - 1).fill(null), lastHistVal, ...forecast.map((p) => p.value)]
     : [];
-  const upperBound = showForecast
-    ? [...Array(counts.length - 1).fill(null), counts[counts.length - 1], ...forecastValues.map((v) => Math.round(v * 1.2))]
+  const upperPad = showForecast
+    ? [...Array(historical.length - 1).fill(null), lastHistVal, ...upperBound.map((p) => p.value)]
     : [];
-  const lowerBound = showForecast
-    ? [...Array(counts.length - 1).fill(null), counts[counts.length - 1], ...forecastValues.map((v) => Math.round(v * 0.8))]
+  const lowerPad = showForecast
+    ? [...Array(historical.length - 1).fill(null), lastHistVal, ...lowerBound.map((p) => p.value)]
     : [];
 
   const data = {
@@ -96,7 +58,7 @@ export default function ForecastChart() {
         ? [
             {
               label: 'Upper bound',
-              data: upperBound,
+              data: upperPad,
               borderColor: 'transparent',
               backgroundColor: 'rgba(99,102,241,0.12)',
               fill: '+1',
@@ -120,7 +82,7 @@ export default function ForecastChart() {
             },
             {
               label: 'Lower bound',
-              data: lowerBound,
+              data: lowerPad,
               borderColor: 'transparent',
               backgroundColor: 'rgba(99,102,241,0.12)',
               fill: '-2',
@@ -145,7 +107,8 @@ export default function ForecastChart() {
           maxRotation: 0,
           color: '#9ca3af',
           font: { size: 11 },
-          callback: (_: unknown, i: number) => (i % 5 === 0 || i === allLabels.length - 1 ? allLabels[i] : null),
+          callback: (_: unknown, i: number) =>
+            i % 5 === 0 || i === allLabels.length - 1 ? allLabels[i] : null,
         },
         border: { color: '#e5e7eb' },
       },
@@ -165,7 +128,8 @@ export default function ForecastChart() {
         padding: 10,
         cornerRadius: 8,
         displayColors: false,
-        filter: (item: TooltipItem<'line'>) => item.dataset.label !== 'Upper bound' && item.dataset.label !== 'Lower bound',
+        filter: (item: TooltipItem<'line'>) =>
+          item.dataset.label !== 'Upper bound' && item.dataset.label !== 'Lower bound',
       },
     },
   };
@@ -199,7 +163,15 @@ export default function ForecastChart() {
         </span>
         {showForecast && (
           <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-            <span style={{ width: 20, height: 2, background: 'rgba(251,146,60,0.9)', display: 'inline-block', borderTop: '2px dashed rgba(251,146,60,0.9)' }} />
+            <span
+              style={{
+                width: 20,
+                height: 2,
+                background: 'rgba(251,146,60,0.9)',
+                display: 'inline-block',
+                borderTop: '2px dashed rgba(251,146,60,0.9)',
+              }}
+            />
             7-day forecast
           </span>
         )}
