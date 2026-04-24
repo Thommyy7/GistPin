@@ -6,6 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import BookmarkButton from '@/components/ui/BookmarkButton';
 import SearchBar from '@/components/ui/SearchBar';
 import KeyboardShortcuts from '@/components/ui/KeyboardShortcuts';
+import HeaderLogo from '@/components/Header';
 
 // ── SVG icons ─────────────────────────────────────────────────────────────────
 
@@ -135,15 +136,6 @@ function MoonIcon() {
   );
 }
 
-function GistPinLogo() {
-  return (
-    <svg width={28} height={28} viewBox="0 0 32 32" fill="none">
-      <circle cx="16" cy="16" r="16" fill="#6366f1" />
-      <path d="M16 6C11.03 6 7 10.03 7 15c0 6.4 8.1 13.2 8.45 13.5a.75.75 0 0 0 1.1 0C16.9 28.2 25 21.4 25 15c0-4.97-4.03-9-9-9zm0 13a4 4 0 1 1 0-8 4 4 0 0 1 0 8z" fill="white" />
-    </svg>
-  );
-}
-
 // ── Nav config ────────────────────────────────────────────────────────────────
 
 const NAV_ITEMS = [
@@ -220,18 +212,7 @@ export default function Layout({ children }: LayoutProps) {
   const SidebarContent = ({ mobile = false }: { mobile?: boolean }) => (
     <div className="flex h-full flex-col">
       {/* Brand */}
-      <div
-        className={`flex items-center gap-3 px-4 py-5 ${
-          !sidebarExpanded && !mobile ? 'justify-center px-0' : ''
-        }`}
-      >
-        <GistPinLogo />
-        {(sidebarExpanded || mobile) && (
-          <span className="text-base font-bold tracking-tight text-gray-900 dark:text-white">
-            GistPin
-          </span>
-        )}
-      </div>
+      <HeaderLogo expanded={sidebarExpanded || mobile} />
 
       {/* Divider */}
       <div className="mx-3 mb-2 h-px bg-gray-100 dark:bg-gray-800" />
