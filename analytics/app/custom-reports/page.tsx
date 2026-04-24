@@ -1,6 +1,6 @@
 import ReportBuilder from '@/components/ReportBuilder';
 
-export default function ReportBuilderPage() {
+export default function CustomReportsPage() {
   return (
     <ReportBuilder
       heading="Build a custom report"
