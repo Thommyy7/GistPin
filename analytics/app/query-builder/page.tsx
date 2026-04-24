@@ -199,7 +199,7 @@ export default function QueryBuilderPage() {
               exportRowsToCsv({
                 filenamePrefix: 'query-results',
                 rows: results.map((r) =>
-                  Object.fromEntries(visibleColumns.map((c) => [c, (r as Record<string, unknown>)[c] ?? '']))
+                  Object.fromEntries(visibleColumns.map((c) => [c, (r as Record<string, string | number | boolean | null>)[c] ?? '']))
                 ),
                 onProgress,
               })

@@ -36,7 +36,7 @@ async function compress(data: string): Promise<Uint8Array> {
 async function decompress(data: Uint8Array): Promise<string> {
   const stream = new DecompressionStream('gzip');
   const writer = stream.writable.getWriter();
-  writer.write(data);
+  writer.write(data.buffer as ArrayBuffer);
   writer.close();
   const chunks: Uint8Array[] = [];
   const reader = stream.readable.getReader();

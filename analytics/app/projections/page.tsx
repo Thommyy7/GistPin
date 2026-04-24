@@ -53,9 +53,9 @@ type Scenario = keyof typeof SCENARIOS;
 export default function ProjectionsPage() {
   const [currentUsers, setCurrentUsers] = useState(5000);
   const [scenario, setScenario] = useState<Scenario>('moderate');
-  const [monthlyGrowthRate, setMonthlyGrowthRate] = useState(SCENARIOS.moderate.monthlyGrowthRate);
-  const [conversionRate, setConversionRate] = useState(SCENARIOS.moderate.conversionRate);
-  const [arpu, setArpu] = useState(SCENARIOS.moderate.arpu);
+  const [monthlyGrowthRate, setMonthlyGrowthRate] = useState<number>(SCENARIOS.moderate.monthlyGrowthRate);
+  const [conversionRate, setConversionRate] = useState<number>(SCENARIOS.moderate.conversionRate);
+  const [arpu, setArpu] = useState<number>(SCENARIOS.moderate.arpu);
 
   function applyScenario(s: Scenario) {
     setScenario(s);
