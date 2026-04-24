@@ -1,7 +1,7 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState, useEffect, useRef } from 'react';
 import KPIGrid from '@/components/KPICard';
 import LiveGistCounter from '@/components/LiveGistCounter';
 import ChartSkeleton, { KPICardSkeleton } from '@/components/ui/ChartSkeleton';
@@ -11,6 +11,27 @@ import { DataQualityBadge } from '@/components/ui/DataQualityBadge';
 import AnnotatedChart from '@/components/ui/AnnotatedChart';
 import { detectAnomalies } from '@/lib/anomaly';
 import { createUserActivityData } from '@/lib/analytics-data';
+
+/** Wraps children in a horizontally swipeable container for touch devices. */
+function SwipeableChart({ children }: { children: React.ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const startX = useRef(0);
+
+  return (
+    <div
+      ref={ref}
+      className="w-full touch-pan-x overflow-x-auto"
+      onTouchStart={(e) => { startX.current = e.touches[0].clientX; }}
+      onTouchMove={(e) => {
+        if (!ref.current) return;
+        ref.current.scrollLeft -= e.touches[0].clientX - startX.current;
+        startX.current = e.touches[0].clientX;
+      }}
+    >
+      <div className="min-w-[320px]">{children}</div>
+    </div>
+  );
+}
 
 // Priority 2: simple charts
 const LazyDailyGistsChart = dynamic(() => import('@/components/charts/DailyGistsChart'), {
@@ -82,11 +103,13 @@ export default function Page() {
             <DataQualityBadge labels={activityData.labels} values={activityData.newUsers} metricName="New Users" />
           </div>
           {stage >= 1 ? (
-            <AnnotatedChart chartId="user-area" labels={activityData.labels}>
-              <ChartErrorBoundary title="New vs Returning Users">
-                <LazyUserAreaChart />
-              </ChartErrorBoundary>
-            </AnnotatedChart>
+            <SwipeableChart>
+              <AnnotatedChart chartId="user-area" labels={activityData.labels}>
+                <ChartErrorBoundary title="New vs Returning Users">
+                  <LazyUserAreaChart />
+                </ChartErrorBoundary>
+              </AnnotatedChart>
+            </SwipeableChart>
           ) : (
             <ChartSkeleton />
           )}
@@ -99,9 +122,11 @@ export default function Page() {
           Daily Gists · Last 30 Days
         </h2>
         {stage >= 1 ? (
-          <ChartErrorBoundary title="Daily Gists">
-            <LazyDailyGistsChart />
-          </ChartErrorBoundary>
+          <SwipeableChart>
+            <ChartErrorBoundary title="Daily Gists">
+              <LazyDailyGistsChart />
+            </ChartErrorBoundary>
+          </SwipeableChart>
         ) : (
           <ChartSkeleton />
         )}
@@ -114,9 +139,11 @@ export default function Page() {
             Gist Age vs Engagement
           </h2>
           {stage >= 2 ? (
-            <ChartErrorBoundary title="Scatter">
-              <LazyScatterChart />
-            </ChartErrorBoundary>
+            <SwipeableChart>
+              <ChartErrorBoundary title="Scatter">
+                <LazyScatterChart />
+              </ChartErrorBoundary>
+            </SwipeableChart>
           ) : (
             <ChartSkeleton />
           )}
@@ -127,9 +154,11 @@ export default function Page() {
             Platform Usage
           </h2>
           {stage >= 2 ? (
-            <ChartErrorBoundary title="Radar">
-              <LazyRadarChart />
-            </ChartErrorBoundary>
+            <SwipeableChart>
+              <ChartErrorBoundary title="Radar">
+                <LazyRadarChart />
+              </ChartErrorBoundary>
+            </SwipeableChart>
           ) : (
             <ChartSkeleton />
           )}
@@ -143,9 +172,11 @@ export default function Page() {
             Category Distribution
           </h2>
           {stage >= 2 ? (
-            <ChartErrorBoundary title="Category Distribution">
-              <LazyCategoryPieChart />
-            </ChartErrorBoundary>
+            <SwipeableChart>
+              <ChartErrorBoundary title="Category Distribution">
+                <LazyCategoryPieChart />
+              </ChartErrorBoundary>
+            </SwipeableChart>
           ) : (
             <ChartSkeleton />
           )}
@@ -156,9 +187,11 @@ export default function Page() {
             Active Locations
           </h2>
           {stage >= 2 ? (
-            <ChartErrorBoundary title="Locations">
-              <LazyLocationTable />
-            </ChartErrorBoundary>
+            <SwipeableChart>
+              <ChartErrorBoundary title="Locations">
+                <LazyLocationTable />
+              </ChartErrorBoundary>
+            </SwipeableChart>
           ) : (
             <ChartSkeleton />
           )}
