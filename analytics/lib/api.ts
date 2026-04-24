@@ -78,3 +78,10 @@ export async function fetchLocationData(): Promise<LocationData[]> {
   if (!result.ok) { console.error('[api] fetchLocationData failed:', result.error); return mockLocationData(); }
   return result.data;
 }
+
+// Progressive loading — KPIs first, simple charts second, complex last
+export const progressiveFetchers = {
+  kpis: () => fetchGistStats(),
+  simple: () => Promise.all([fetchCategoryDistribution(), fetchPlatformUsage()]),
+  complex: () => Promise.all([fetchUserGrowth(), fetchScatterData(), fetchLocationData()]),
+} as const;
