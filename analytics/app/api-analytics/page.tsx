@@ -18,16 +18,16 @@ import ExportButton from '@/components/ui/ExportButton';
 ChartJS.register(CategoryScale, LinearScale, BarElement, PointElement, LineElement, ArcElement, Tooltip, Legend);
 
 const endpoints = [
-  { name: 'GET /health',       requests: 50123, avgMs: 12,  errorRate: 0.01 },
-  { name: 'GET /gists',        requests: 10234, avgMs: 145, errorRate: 0.42 },
-  { name: 'POST /gists',       requests: 3421,  avgMs: 210, errorRate: 0.85 },
-  { name: 'GET /gists/:id',    requests: 8901,  avgMs: 98,  errorRate: 0.21 },
-  { name: 'DELETE /gists/:id', requests: 512,   avgMs: 180, errorRate: 1.10 },
-  { name: 'GET /users/me',     requests: 7234,  avgMs: 55,  errorRate: 0.15 },
-  { name: 'POST /auth/login',  requests: 4102,  avgMs: 320, errorRate: 2.30 },
-  { name: 'GET /locations',    requests: 6789,  avgMs: 88,  errorRate: 0.33 },
-  { name: 'POST /tips',        requests: 1023,  avgMs: 195, errorRate: 0.60 },
-  { name: 'GET /feed',         requests: 9345,  avgMs: 167, errorRate: 0.48 },
+  { name: 'GET /health',       requests: 50123, avgMs: 12,  errorRate: 0.01, p50: 10,  p90: 18,  p99: 35  },
+  { name: 'GET /gists',        requests: 10234, avgMs: 145, errorRate: 0.42, p50: 120, p90: 210, p99: 480 },
+  { name: 'POST /gists',       requests: 3421,  avgMs: 210, errorRate: 0.85, p50: 185, p90: 310, p99: 620 },
+  { name: 'GET /gists/:id',    requests: 8901,  avgMs: 98,  errorRate: 0.21, p50: 80,  p90: 155, p99: 290 },
+  { name: 'DELETE /gists/:id', requests: 512,   avgMs: 180, errorRate: 1.10, p50: 160, p90: 260, p99: 510 },
+  { name: 'GET /users/me',     requests: 7234,  avgMs: 55,  errorRate: 0.15, p50: 45,  p90: 90,  p99: 180 },
+  { name: 'POST /auth/login',  requests: 4102,  avgMs: 320, errorRate: 2.30, p50: 290, p90: 480, p99: 950 },
+  { name: 'GET /locations',    requests: 6789,  avgMs: 88,  errorRate: 0.33, p50: 72,  p90: 140, p99: 270 },
+  { name: 'POST /tips',        requests: 1023,  avgMs: 195, errorRate: 0.60, p50: 170, p90: 290, p99: 560 },
+  { name: 'GET /feed',         requests: 9345,  avgMs: 167, errorRate: 0.48, p50: 145, p90: 250, p99: 490 },
 ];
 
 const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -36,6 +36,35 @@ const errorRateOverTime = [0.8, 1.1, 0.9, 2.3, 1.4, 0.7, 0.5];
 const statusCodes = { '2xx': 94210, '4xx': 3120, '5xx': 870, '3xx': 450 };
 
 export default function ApiAnalyticsPage() {
+  const percentilesData = {
+    labels: endpoints.map((e) => e.name),
+    datasets: [
+      {
+        label: 'p50',
+        data: endpoints.map((e) => e.p50),
+        backgroundColor: 'rgba(34, 197, 94, 0.8)',
+        borderColor: 'rgba(34, 197, 94, 1)',
+        borderWidth: 1,
+        borderRadius: 3,
+      },
+      {
+        label: 'p90',
+        data: endpoints.map((e) => e.p90),
+        backgroundColor: 'rgba(251, 191, 36, 0.8)',
+        borderColor: 'rgba(251, 191, 36, 1)',
+        borderWidth: 1,
+        borderRadius: 3,
+      },
+      {
+        label: 'p99',
+        data: endpoints.map((e) => e.p99),
+        backgroundColor: 'rgba(239, 68, 68, 0.8)',
+        borderColor: 'rgba(239, 68, 68, 1)',
+        borderWidth: 1,
+        borderRadius: 3,
+      },
+    ],
+  };
   const barData = {
     labels: endpoints.map((e) => e.name),
     datasets: [{
@@ -134,13 +163,29 @@ export default function ApiAnalyticsPage() {
       </div>
 
       <div className="rounded-lg border bg-white dark:bg-gray-900 p-6 shadow-sm overflow-x-auto">
+        <h2 className="text-lg font-semibold mb-4">Response Time Percentiles (ms)</h2>
+        <Bar
+          data={percentilesData}
+          options={{
+            indexAxis: 'y',
+            responsive: true,
+            plugins: { legend: { position: 'top' } },
+            scales: { x: { title: { display: true, text: 'Latency (ms)' } } },
+          }}
+        />
+      </div>
+
+      <div className="rounded-lg border bg-white dark:bg-gray-900 p-6 shadow-sm overflow-x-auto">
         <h2 className="text-lg font-semibold mb-4">Endpoint Details</h2>
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b text-left text-gray-500">
               <th className="pb-2 pr-4">Endpoint</th>
               <th className="pb-2 pr-4 text-right">Requests</th>
-              <th className="pb-2 pr-4 text-right">Avg Response (ms)</th>
+              <th className="pb-2 pr-4 text-right">Avg (ms)</th>
+              <th className="pb-2 pr-4 text-right">p50 (ms)</th>
+              <th className="pb-2 pr-4 text-right">p90 (ms)</th>
+              <th className="pb-2 pr-4 text-right">p99 (ms)</th>
               <th className="pb-2 text-right">Error Rate (%)</th>
             </tr>
           </thead>
@@ -150,6 +195,9 @@ export default function ApiAnalyticsPage() {
                 <td className="py-2 pr-4 font-mono">{e.name}</td>
                 <td className="py-2 pr-4 text-right">{e.requests.toLocaleString()}</td>
                 <td className="py-2 pr-4 text-right">{e.avgMs}</td>
+                <td className="py-2 pr-4 text-right">{e.p50}</td>
+                <td className="py-2 pr-4 text-right">{e.p90}</td>
+                <td className="py-2 pr-4 text-right">{e.p99}</td>
                 <td className={`py-2 text-right font-medium ${e.errorRate > 1 ? 'text-red-500' : 'text-green-600'}`}>
                   {e.errorRate}%
                 </td>
